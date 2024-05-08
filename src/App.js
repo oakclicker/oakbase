@@ -25,12 +25,14 @@ function App() {
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
-  
 
   useEffect(() => {
     const telegramApp = window.Telegram.WebApp;
     const userData = telegramApp.initDataUnsafe.user;
     setUserData(userData);
+
+    // Отправляем запрос на сервер для получения данных пользователя
+    fetchUserData(userData.id);
   }, []);
 
   useEffect(() => {
@@ -46,6 +48,27 @@ function App() {
 
     return () => clearInterval(energyInterval);
   }, []);
+
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await fetch('https://oakgame.tech/loadUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user_id: userId })
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setUserData(userData);
+        setBalance(userData.balance);
+      } else {
+        console.error('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
 
   const handleAddBalance = () => {
     setButtonPressed(true);
@@ -85,41 +108,38 @@ function App() {
       {activeWindow === 'App' && (
         <div className="app-window">
           {userData && (
-                        <div id="usercard" className="user-card">
-                        <div className="user-panel">
-                          <img src={`https://t.me/i/userpic/320/${userData.username}.jpg`} alt="Avatar" className="avatar transparent" />
-                          <div className='userInfo_container transparent'>
-                            <p className='transparent user_name'>{userData.first_name} {userData.last_name}</p>
-                            <p className='transparent user_id'>ID: {userData.id}</p>
-                          </div>
-                        </div> 
-                      </div>
+            <div id="usercard" className="user-card">
+              <div className="user-panel">
+                <img src={`https://t.me/i/userpic/320/${userData.username}.jpg`} alt="Avatar" className="avatar transparent" />
+                <div className='userInfo_container transparent'>
+                  <p className='transparent user_name'>{userData.fullname}</p>
+                  <p className='transparent user_id'>ID: {userData.user_id}</p>
+                </div>
+              </div> 
+            </div>
           )}
 
-              <div className='balance-container'>
-                <div className='user_balance_container'>
-                  <p className="balance">
-                    <p className='balance_counter'>{balance}</p>
-                    <img src={MainCoin} alt='coin' />
-                  </p>
-                  <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
-                    <img src={MainButton} alt='Main Button' className='transparent' />
-                      
-                  </button>
-                </div>
-              </div>
+          <div className='balance-container'>
+            <div className='user_balance_container'>
+              <p className="balance">
+                <p className='balance_counter'>{balance}</p>
+                <img src={MainCoin} alt='coin' />
+              </p>
+              <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                <img src={MainButton} alt='Main Button' className='transparent' />
+              </button>
+            </div>
+          </div>
 
-              <div className='Strange_line_container'>
-                  <p className='light_counter'>
-                    <img src={Light} alt='light' className='light_icon' />
-                    {energy}(+2)<span className='grey_text'>/1,000</span>
-                  </p>
+          <div className='Strange_line_container'>
+            <p className='light_counter'>
+              <img src={Light} alt='light' className='light_icon' />
+              {energy}(+2)<span className='grey_text'>/1,000</span>
+            </p>
 
-                  <ProgressBar value={energy} max={1000} />
-              </div>
+            <ProgressBar value={energy} max={1000} />
+          </div>
         </div>
-
-        
       )}
       <div className="navigation">
         <button className={`nav-button ${activeWindow === 'Rating' && 'active'}`} onClick={() => handleWindowChange('Rating')}>
