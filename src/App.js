@@ -72,11 +72,13 @@ function App() {
     return () => clearInterval(energyInterval);
   }, []);
 
+// Inside the component
+
   useEffect(() => {
     const debouncedFunction = debounce(handleAddBalance, 3000);
     setDebouncedAddBalance(debouncedFunction);
     return () => clearTimeout(debouncedFunction);
-  }, []);
+  }, [handleAddBalance]); // Add handleAddBalance to the dependency array
 
   const debounce = (func, delay) => {
     let timeoutId;
