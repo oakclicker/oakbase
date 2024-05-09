@@ -81,7 +81,7 @@ function App() {
   
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
-      setBalance(prevBalance => prevBalance + 1);
+      // setBalance(prevBalance => prevBalance + 1);
     }
   };
   
