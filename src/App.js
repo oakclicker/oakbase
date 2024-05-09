@@ -22,16 +22,28 @@ import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт 
 function App() {
   const [userData, setUserData] = useState(null);
   const [energy, setEnergy] = useState(1000);
+  const [balance, setBalance] = useState(0);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
-  
 
   useEffect(() => {
-    const telegramApp = window.Telegram.WebApp;
-    const userData = telegramApp.initDataUnsafe.user;
-    setUserData(userData);
-    loadUserData(); // Загрузка данных пользователя после инициализации компонента
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id);
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+        const userData = await response.json();
+        setUserData(userData);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    if (userData) {
+      fetchUserData();
+    }
+  }, [userData]);
 
   useEffect(() => {
     const energyInterval = setInterval(() => {
@@ -46,19 +58,6 @@ function App() {
 
     return () => clearInterval(energyInterval);
   }, []);
-
-  const loadUserData = async () => {
-    try {
-      const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id);
-      if (!response.ok) {
-        throw new Error('Failed to load user data');
-      }
-      const userData = await response.json();
-      setUserData(userData); // Обновляем состояние userData с полученными данными
-    } catch (error) {
-      console.error('Error loading user data:', error);
-    }
-  };
 
   const handleAddBalance = () => {
     setButtonPressed(true);
@@ -112,7 +111,7 @@ function App() {
           <div className='balance-container'>
             <div className='user_balance_container'>
               <p className="balance">
-                <p className='balance_counter'>{userData.balance}</p>
+                <p className='balance_counter'>{balance}</p>
                 <img src={MainCoin} alt='coin' />
               </p>
               <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
