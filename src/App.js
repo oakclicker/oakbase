@@ -49,7 +49,7 @@ function App() {
         }
         const userDb = await response.json();
         setUserDb(userDb);
-        setBalance(userDb.balance);
+        setBalance(parseInt(userDb.balance)); // Используйте parseInt() для преобразования в число
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
