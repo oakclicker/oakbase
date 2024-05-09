@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import RatingIcon from './icons/rating.png';
 import MineIcon from './icons/mine.png';
@@ -17,16 +17,18 @@ import Friends from './components/Friends/Friends';
 import MainButton from './icons/main_button.png';
 import MainCoin from './icons/main_coin.png';
 import Light from './icons/light.svg';
-import ProgressBar from './components/ProgressBar/ProgressBar'; 
+import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт ProgressBar
 
 function App() {
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
+  const [ubalance, setBalance] = useState(0);
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
   const [debouncedAddBalance, setDebouncedAddBalance] = useState(null);
 
+  
   useEffect(() => {
     const telegramApp = window.Telegram.WebApp;
     const userData = telegramApp.initDataUnsafe.user;
@@ -36,6 +38,7 @@ function App() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        console.log('Sending request to fetch user data');
         const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id, {
           method: 'GET',
           headers: {
@@ -43,20 +46,22 @@ function App() {
           }
         });
         if (!response.ok) {
+          console.log(response);
           throw new Error('Failed to fetch user data');
         }
         const userDb = await response.json();
         setUserDb(userDb);
+        ubalance = userDb.balance;
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
   
-    if (userData) {
+    if (userData) { // Проверяем, что userData загружены
       fetchUserData();
     }
-  }, [userData]);
-
+  }, [userData]); // Используем только userData в зависимости
+  
   useEffect(() => {
     const energyInterval = setInterval(() => {
       setEnergy(prevEnergy => {
@@ -71,56 +76,47 @@ function App() {
     return () => clearInterval(energyInterval);
   }, []);
 
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return function (...args) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(this, args), delay);
-    };
-  };
-
-  const handleAddBalance = async () => {
+  const handleAddBalance = () => {
     setButtonPressed(true);
     setTimeout(() => {
       setButtonPressed(false);
     }, 200);
-
+  
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
-      try {
-        const response = await fetch('https://oakgame.tech/updateBalance', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            user_id: userData.id,
-            balance: 1
-          })
-        });
-        if (!response.ok) {
-          throw new Error('Failed to update balance');
-        }
-        setUserDb(prevUserDb => ({
-          ...prevUserDb,
-          balance: prevUserDb.balance + 1
-        }));
-      } catch (error) {
-        console.error('Error updating balance:', error);
-      }
+      
+      // Сбросить предыдущий таймер
+      clearTimeout(debouncedAddBalance);
+      
+      // Установить новый таймер для отправки запроса через 3 секунды
+      setDebouncedAddBalance(setTimeout(() => {
+        sendBalanceUpdateRequest();
+      }, 3000));
     }
   };
-
-  useEffect(() => {
-    const debouncedFunction = debounce(handleAddBalance, 3000);
-    setDebouncedAddBalance(debouncedFunction);
-    return () => clearTimeout(debouncedFunction);
-  }, [handleAddBalance]);
-
-  const handleAddBalanceDebounced = useCallback(() => {
-    debouncedAddBalance();
-  }, [debouncedAddBalance]);
-
+  
+  const sendBalanceUpdateRequest = async () => {
+    try {
+      const response = await fetch('https://oakgame.tech/updateBalance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userData.id,
+          balance: 1 // добавляем +1 к балансу
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update balance');
+      }
+      setBalance(prevBalance => prevBalance + 1); // обновляем баланс в UI
+    } catch (error) {
+      console.error('Error updating balance:', error);
+    }
+  };
+  
+  
   const handleWindowChange = (windowName) => {
     setActiveWindow(prevWindow => (prevWindow !== windowName ? windowName : prevWindow));
   };
@@ -147,39 +143,41 @@ function App() {
       {activeWindow === 'App' && (
         <div className="app-window">
           {userDb && (
-            <div id="usercard" className="user-card">
-              <div className="user-panel">
-                <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
-                <div className='userInfo_container transparent'>
-                  <p className='transparent user_name'>{userDb.fullname}</p>
-                  <p className='transparent user_id'>ID: {userDb.user_id}</p>
-                </div>
-              </div> 
-            </div>
+                        <div id="usercard" className="user-card">
+                        <div className="user-panel">
+                          <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
+                          <div className='userInfo_container transparent'>
+                            <p className='transparent user_name'>{userDb.fullname}</p>
+                            <p className='transparent user_id'>ID: {userDb.user_id}</p>
+                          </div>
+                        </div> 
+                      </div>
           )}
 
-          <div className='balance-container'>
-            <div className='user_balance_container'>
-              {userDb && (
-                <p className="balance">
-                  <p className='balance_counter'>{userDb.balance}</p>
-                  <img src={MainCoin} alt='coin' />
-                </p>
-              )}
-              <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalanceDebounced}>
-                <img src={MainButton} alt='Main Button' className='transparent' />
-              </button>
-            </div>
-          </div>
+                <div className='balance-container'>
+                  <div className='user_balance_container'>
+                  <p className="balance">
+                      <span className='balance_counter'>{ubalance}</span>
+                      <img src={MainCoin} alt='coin' />
+                  </p>
+                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                      <img src={MainButton} alt='Main Button' className='transparent' />
+                    </button>
+                  </div>
+                </div>
 
-          <div className='Strange_line_container'>
-            <p className='light_counter'>
-              <img src={Light} alt='light' className='light_icon' />
-              {energy}(+2)<span className='grey_text'>/1,000</span>
-            </p>
-            <ProgressBar value={energy} max={1000} />
-          </div>
+
+              <div className='Strange_line_container'>
+                  <p className='light_counter'>
+                    <img src={Light} alt='light' className='light_icon' />
+                    {energy}(+2)<span className='grey_text'>/1,000</span>
+                  </p>
+
+                  <ProgressBar value={energy} max={1000} />
+              </div>
         </div>
+
+        
       )}
       <div className="navigation">
         <button className={`nav-button ${activeWindow === 'Rating' && 'active'}`} onClick={() => handleWindowChange('Rating')}>
