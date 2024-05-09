@@ -18,6 +18,7 @@ import MainButton from './icons/main_button.png';
 import MainCoin from './icons/main_coin.png';
 import Light from './icons/light.svg';
 import ProgressBar from './components/ProgressBar/ProgressBar';
+import BannedIcon from './icons/ban.png';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -57,7 +58,7 @@ function App() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setLoading(true);
+        setLoading(false);
       }
     };
 
@@ -160,9 +161,16 @@ function App() {
       ) : (
         <div>
           {userDb && userDb.banned ? (
-            <div className="blocked-screen">
-              <p>Ваш аккаунта заблокирован!</p>
-            </div>
+        <div id="bannes" className="blocked-screen">
+        <img src={BannedIcon} alt="bannedicon" className="bannedicon transparent" />
+        <div className="ban-panel">
+            <p className='transparent bantext'><b>Ваш аккаунт заблокирован!</b></p>
+          <div className='banInfo_container transparent'>
+            <p className='transparent reason'><span><b>Причина:</b></span> Долбаебизм рыпгвпрвр ыпгварыпгврышпгрвапрщвашырпшгваырпщгрывагпрщывгшарпгыварпгщвыа</p>
+            <p className='transparent dateban'><span><b>Срок:</b></span> Навсегда</p>
+          </div>
+        </div>
+      </div>
           ) : (
             <>
               {activeWindow === 'App' && (
