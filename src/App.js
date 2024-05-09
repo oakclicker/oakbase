@@ -22,10 +22,12 @@ import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт 
 function App() {
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
-  const [Ubalance, setBalance] = useState(0);
+  const [ubalance, setBalance] = useState(0);
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
+  const [debouncedAddBalance, setDebouncedAddBalance] = useState(null);
+
   
   useEffect(() => {
     const telegramApp = window.Telegram.WebApp;
@@ -49,7 +51,7 @@ function App() {
         }
         const userDb = await response.json();
         setUserDb(userDb);
-        setBalance(parseInt(userDb.balance)); // Используйте parseInt() для преобразования в число
+        setBalance(parseInt(userDb.balance));
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -83,8 +85,38 @@ function App() {
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
       setBalance(prevBalance => prevBalance + 1);
+      
+      // Сбросить предыдущий таймер
+      clearTimeout(debouncedAddBalance);
+      
+      // Установить новый таймер для отправки запроса через 3 секунды
+      setDebouncedAddBalance(setTimeout(() => {
+        sendBalanceUpdateRequest();
+      }, 3000));
     }
   };
+  
+  const sendBalanceUpdateRequest = async () => {
+    try {
+      const response = await fetch('https://oakgame.tech/updateBalance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userData.id,
+          balance: ubalance
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update balance');
+      }
+      setBalance(prevBalance => prevBalance + 1); // обновляем баланс в UI
+    } catch (error) {
+      console.error('Error updating balance:', error);
+    }
+  };
+  
   
   const handleWindowChange = (windowName) => {
     setActiveWindow(prevWindow => (prevWindow !== windowName ? windowName : prevWindow));
@@ -125,10 +157,10 @@ function App() {
 
                 <div className='balance-container'>
                   <div className='user_balance_container'>
-                      <p className="balance">
-                        <p className='balance_counter'>{Ubalance}</p>
-                        <img src={MainCoin} alt='coin' />
-                      </p>
+                  <p className="balance">
+                      <span className='balance_counter'>{ubalance}</span>
+                      <img src={MainCoin} alt='coin' />
+                  </p>
                     <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
                       <img src={MainButton} alt='Main Button' className='transparent' />
                     </button>
