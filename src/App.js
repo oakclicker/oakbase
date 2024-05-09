@@ -17,16 +17,17 @@ import Friends from './components/Friends/Friends';
 import MainButton from './icons/main_button.png';
 import MainCoin from './icons/main_coin.png';
 import Light from './icons/light.svg';
-import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт ProgressBar
+import ProgressBar from './components/ProgressBar/ProgressBar'; 
 
 function App() {
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
-  const [balance, setBalance] = useState(0);
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
-  
+  const [balance, setBalance] = useState(0);
+  const [debouncedAddBalance, setDebouncedAddBalance] = useState(null);
+
   useEffect(() => {
     const telegramApp = window.Telegram.WebApp;
     const userData = telegramApp.initDataUnsafe.user;
@@ -36,7 +37,6 @@ function App() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        console.log('Sending request to fetch user data');
         const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id, {
           method: 'GET',
           headers: {
@@ -44,7 +44,6 @@ function App() {
           }
         });
         if (!response.ok) {
-          console.log(response);
           throw new Error('Failed to fetch user data');
         }
         const userDb = await response.json();
@@ -54,11 +53,11 @@ function App() {
       }
     };
   
-    if (userData) { // Проверяем, что userData загружены
+    if (userData) {
       fetchUserData();
     }
-  }, [userData]); // Используем только userData в зависимости
-  
+  }, [userData]);
+
   useEffect(() => {
     const energyInterval = setInterval(() => {
       setEnergy(prevEnergy => {
@@ -73,12 +72,26 @@ function App() {
     return () => clearInterval(energyInterval);
   }, []);
 
+  useEffect(() => {
+    const debouncedFunction = debounce(handleAddBalance, 3000);
+    setDebouncedAddBalance(debouncedFunction);
+    return () => clearTimeout(debouncedFunction);
+  }, []);
+
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
   const handleAddBalance = async () => {
     setButtonPressed(true);
     setTimeout(() => {
       setButtonPressed(false);
     }, 200);
-  
+
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
       try {
@@ -89,17 +102,21 @@ function App() {
           },
           body: JSON.stringify({
             user_id: userData.id,
-            balance: 1 // добавляем +1 к балансу
+            balance: 1
           })
         });
         if (!response.ok) {
           throw new Error('Failed to update balance');
         }
-        setBalance(prevBalance => prevBalance + 1); // обновляем баланс в UI
+        setBalance(prevBalance => prevBalance + 1);
       } catch (error) {
         console.error('Error updating balance:', error);
       }
     }
+  };
+
+  const handleAddBalanceDebounced = () => {
+    debouncedAddBalance();
   };
   
   
@@ -142,13 +159,13 @@ function App() {
 
                 <div className='balance-container'>
                   <div className='user_balance_container'>
-                    {userDb && ( // Проверяем, что userDb загружены
-                    <p className="balance">
-                          <span className='balance_counter'>{userDb.balance}</span>
-                          <img src={MainCoin} alt='coin' />
-                        </p>
+                    {userDb && (
+                      <p className="balance">
+                        <span className='balance_counter'>{userDb.balance}</span>
+                        <img src={MainCoin} alt='coin' />
+                      </p>
                     )}
-                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalanceDebounced}>
                       <img src={MainButton} alt='Main Button' className='transparent' />
                     </button>
                   </div>
