@@ -21,23 +21,17 @@ import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт 
 
 function App() {
   const [userData, setUserData] = useState(null);
-  const [energy, setEnergy] = useState(1000);
+  const [userDb, setUserDb] = useState(null);
   const [balance, setBalance] = useState(0);
+  const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
+  
 
   useEffect(() => {
-    const energyInterval = setInterval(() => {
-      setEnergy(prevEnergy => {
-        if (prevEnergy < 999) {
-          return prevEnergy + 2;
-        } else {
-          return 1000; // Ограничение до 1000
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(energyInterval);
+    const telegramApp = window.Telegram.WebApp;
+    const userData = telegramApp.initDataUnsafe.user;
+    setUserData(userData);
   }, []);
 
   useEffect(() => {
@@ -54,17 +48,31 @@ function App() {
           console.log(response);
           throw new Error('Failed to fetch user data');
         }
-        const userData = await response.json();
-        setUserData(userData);
+        const userDb = await response.json();
+        setUserDb(userDb);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
   
-    if (userData) {
+    if (userDb) {
       fetchUserData();
     }
-  }, [userData]);
+  }, [userDb]);
+
+  useEffect(() => {
+    const energyInterval = setInterval(() => {
+      setEnergy(prevEnergy => {
+        if (prevEnergy < 999) {
+          return prevEnergy + 2;
+        } else {
+          return 1000; // Ограничение до 1000
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(energyInterval);
+  }, []);
 
   const handleAddBalance = () => {
     setButtonPressed(true);
@@ -104,38 +112,41 @@ function App() {
       {activeWindow === 'App' && (
         <div className="app-window">
           {userData && (
-            <div id="usercard" className="user-card">
-              <div className="user-panel">
-                <img src={userData.photo_url} alt="Avatar" className="avatar transparent" />
-                <div className='userInfo_container transparent'>
-                  <p className='transparent user_name'>{userData.fullname}</p>
-                  <p className='transparent user_id'>ID: {userData.user_id}</p>
-                </div>
-              </div> 
-            </div>
+                        <div id="usercard" className="user-card">
+                        <div className="user-panel">
+                          <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
+                          <div className='userInfo_container transparent'>
+                            <p className='transparent user_name'>{userDb.fullname}</p>
+                            <p className='transparent user_id'>ID: {userDb.user_id}</p>
+                          </div>
+                        </div> 
+                      </div>
           )}
 
-          <div className='balance-container'>
-            <div className='user_balance_container'>
-              <p className="balance">
-                <p className='balance_counter'>{balance}</p>
-                <img src={MainCoin} alt='coin' />
-              </p>
-              <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
-                <img src={MainButton} alt='Main Button' className='transparent' />
-              </button>
-            </div>
-          </div>
+              <div className='balance-container'>
+                <div className='user_balance_container'>
+                  <p className="balance">
+                    <p className='balance_counter'>{userDb.balance}</p>
+                    <img src={MainCoin} alt='coin' />
+                  </p>
+                  <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                    <img src={MainButton} alt='Main Button' className='transparent' />
+                      
+                  </button>
+                </div>
+              </div>
 
-          <div className='Strange_line_container'>
-            <p className='light_counter'>
-              <img src={Light} alt='light' className='light_icon' />
-              {energy}(+2)<span className='grey_text'>/1,000</span>
-            </p>
+              <div className='Strange_line_container'>
+                  <p className='light_counter'>
+                    <img src={Light} alt='light' className='light_icon' />
+                    {energy}(+2)<span className='grey_text'>/1,000</span>
+                  </p>
 
-            <ProgressBar value={energy} max={1000} />
-          </div>
+                  <ProgressBar value={energy} max={1000} />
+              </div>
         </div>
+
+        
       )}
       <div className="navigation">
         <button className={`nav-button ${activeWindow === 'Rating' && 'active'}`} onClick={() => handleWindowChange('Rating')}>
