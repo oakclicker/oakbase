@@ -21,18 +21,16 @@ import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт 
 
 function App() {
   const [userData, setUserData] = useState(null);
-  const [balance, setBalance] = useState(10000000);
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
+  
 
   useEffect(() => {
     const telegramApp = window.Telegram.WebApp;
     const userData = telegramApp.initDataUnsafe.user;
     setUserData(userData);
-
-    // Отправляем запрос на сервер для получения данных пользователя
-    fetchUserData(userData.id);
+    loadUserData(); // Загрузка данных пользователя после инициализации компонента
   }, []);
 
   useEffect(() => {
@@ -49,24 +47,16 @@ function App() {
     return () => clearInterval(energyInterval);
   }, []);
 
-  const fetchUserData = async (userId) => {
+  const loadUserData = async () => {
     try {
-      const response = await fetch('https://oakgame.tech/loadUser', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ user_id: userId })
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        setUserData(userData);
-        setBalance(userData.balance);
-      } else {
-        console.error('Failed to fetch user data');
+      const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id);
+      if (!response.ok) {
+        throw new Error('Failed to load user data');
       }
+      const userData = await response.json();
+      setUserData(userData); // Обновляем состояние userData с полученными данными
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error loading user data:', error);
     }
   };
 
@@ -110,7 +100,7 @@ function App() {
           {userData && (
             <div id="usercard" className="user-card">
               <div className="user-panel">
-                <img src={`https://t.me/i/userpic/320/${userData.username}.jpg`} alt="Avatar" className="avatar transparent" />
+                <img src={userData.photo_url} alt="Avatar" className="avatar transparent" />
                 <div className='userInfo_container transparent'>
                   <p className='transparent user_name'>{userData.fullname}</p>
                   <p className='transparent user_id'>ID: {userData.user_id}</p>
@@ -122,7 +112,7 @@ function App() {
           <div className='balance-container'>
             <div className='user_balance_container'>
               <p className="balance">
-                <p className='balance_counter'>{balance}</p>
+                <p className='balance_counter'>{userData.balance}</p>
                 <img src={MainCoin} alt='coin' />
               </p>
               <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
