@@ -105,7 +105,7 @@ function App() {
         },
         body: JSON.stringify({
           user_id: userData.id,
-          balance: ubalance
+          balance: ubalance + 1 // Используем актуальное значение баланса, увеличенное на 1
         })
       });
       if (!response.ok) {
