@@ -110,7 +110,7 @@ function App() {
     <div className="App">
       {activeWindow === 'App' && (
         <div className="app-window">
-          {userData && (
+          {userDb && (
                         <div id="usercard" className="user-card">
                         <div className="user-panel">
                           <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
