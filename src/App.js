@@ -51,7 +51,7 @@ function App() {
         }
         const userDb = await response.json();
         setUserDb(userDb);
-        ubalance = userDb.balance;
+        setBalance(userDb.balance);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
