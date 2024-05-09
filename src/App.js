@@ -22,7 +22,6 @@ import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт 
 function App() {
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
-  // const [balance, setBalance] = useState(0); // Удалил переменную balance, так как она не используется
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
@@ -54,10 +53,10 @@ function App() {
       }
     };
   
-    if (userData) { // Проверяем, что userData загружены
+    if (userData) {
       fetchUserData();
     }
-  }, [userData]); // Используем только userData в зависимости
+  }, [userData]);
   
   useEffect(() => {
     const energyInterval = setInterval(() => {
@@ -78,13 +77,37 @@ function App() {
     setTimeout(() => {
       setButtonPressed(false);
     }, 200);
-  
+
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
-      // setBalance(prevBalance => prevBalance + 1);
+
+      // Отправка запроса на сервер с задержкой
+      debounceUpdateBalance(userData.id);
     }
   };
-  
+
+  const debounceUpdateBalance = debounce(async (userId) => {
+    try {
+      const response = await fetch('https://oakgame.tech/updateBalance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          balance: 1 // Увеличиваем баланс на 1
+        })
+      });
+      if (!response.ok) {
+        console.error('Failed to update balance:', response);
+      } else {
+        console.log('Balance updated successfully');
+      }
+    } catch (error) {
+      console.error('Error updating balance:', error);
+    }
+  }, 300); // Задержка в 300 миллисекунд
+
   const handleWindowChange = (windowName) => {
     setActiveWindow(prevWindow => (prevWindow !== windowName ? windowName : prevWindow));
   };
@@ -111,43 +134,40 @@ function App() {
       {activeWindow === 'App' && (
         <div className="app-window">
           {userDb && (
-                        <div id="usercard" className="user-card">
-                        <div className="user-panel">
-                          <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
-                          <div className='userInfo_container transparent'>
-                            <p className='transparent user_name'>{userDb.fullname}</p>
-                            <p className='transparent user_id'>ID: {userDb.user_id}</p>
-                          </div>
-                        </div> 
-                      </div>
+            <div id="usercard" className="user-card">
+              <div className="user-panel">
+                <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
+                <div className='userInfo_container transparent'>
+                  <p className='transparent user_name'>{userDb.fullname}</p>
+                  <p className='transparent user_id'>ID: {userDb.user_id}</p>
+                </div>
+              </div> 
+            </div>
           )}
 
-                <div className='balance-container'>
-                  <div className='user_balance_container'>
-                    {userDb && ( // Проверяем, что userDb загружены
-                      <p className="balance">
-                        <p className='balance_counter'>{userDb.balance}</p>
-                        <img src={MainCoin} alt='coin' />
-                      </p>
-                    )}
-                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
-                      <img src={MainButton} alt='Main Button' className='transparent' />
-                    </button>
-                  </div>
-                </div>
+          <div className='balance-container'>
+            <div className='user_balance_container'>
+              {userDb && (
+                <p className="balance">
+                  <p className='balance_counter'>{userDb.balance}</p>
+                  <img src={MainCoin} alt='coin' />
+                </p>
+              )}
+              <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                <img src={MainButton} alt='Main Button' className='transparent' />
+              </button>
+            </div>
+          </div>
 
+          <div className='Strange_line_container'>
+            <p className='light_counter'>
+              <img src={Light} alt='light' className='light_icon' />
+              {energy}(+2)<span className='grey_text'>/1,000</span>
+            </p>
 
-              <div className='Strange_line_container'>
-                  <p className='light_counter'>
-                    <img src={Light} alt='light' className='light_icon' />
-                    {energy}(+2)<span className='grey_text'>/1,000</span>
-                  </p>
-
-                  <ProgressBar value={energy} max={1000} />
-              </div>
+            <ProgressBar value={energy} max={1000} />
+          </div>
         </div>
-
-        
       )}
       <div className="navigation">
         <button className={`nav-button ${activeWindow === 'Rating' && 'active'}`} onClick={() => handleWindowChange('Rating')}>
