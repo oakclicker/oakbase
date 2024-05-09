@@ -161,7 +161,7 @@ function App() {
         <div>
           {userDb && userDb.banned ? (
             <div className="blocked-screen">
-              <p>Данный пользователь заблокирован.</p>
+              <p>Ваш аккаунта заблокирован!</p>
             </div>
           ) : (
             <>

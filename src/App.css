@@ -262,7 +262,7 @@ body {
   margin: 50px auto;
 }
 
-.loading-screen {
+.loading-screen, .blocked-screen {
   z-index: 9999;
   height: 3000px;
   text-align: center;
@@ -283,6 +283,22 @@ body {
   background-repeat: no-repeat;
   background-size: 80%;
   animation: animate 2s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0);
+}
+
+.blocked-screen p {
+  margin-top: 80px;
+  position: relative;
+  font-family: sans-serif;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 4px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #04fcfc, #fff, #04fcfc);
+  background-repeat: no-repeat;
+  background-size: 80%;
+  animation: animate 1s linear infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: rgba(255, 255, 255, 0);
 }
