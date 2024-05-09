@@ -23,6 +23,7 @@ function App() {
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
   const [ubalance, setBalance] = useState(0);
+  const [click, setClick] = useState(0);
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
@@ -52,6 +53,7 @@ function App() {
         const userDb = await response.json();
         setUserDb(userDb);
         setBalance(parseInt(userDb.balance));
+        setClick(parseInt(userDb.click_count));
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -84,7 +86,7 @@ function App() {
   
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
-      setBalance(prevBalance => prevBalance + 1);
+      setBalance(prevBalance => prevBalance + click);
       
       // Сбросить предыдущий таймер
       clearTimeout(debouncedAddBalance);
@@ -111,7 +113,7 @@ function App() {
       if (!response.ok) {
         throw new Error('Failed to update balance');
       }
-      setBalance(prevBalance => prevBalance + 1); // обновляем баланс в UI
+      setBalance(prevBalance => prevBalance + click); // обновляем баланс в UI
     } catch (error) {
       console.error('Error updating balance:', error);
     }
