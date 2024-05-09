@@ -144,7 +144,7 @@ function App() {
                   <div className='user_balance_container'>
                     {userDb && ( // Проверяем, что userDb загружены
                     <p className="balance">
-                          <span className='balance_counter'>{balance}</span>
+                          <span className='balance_counter'>{userDb.balance}</span>
                           <img src={MainCoin} alt='coin' />
                         </p>
                     )}
