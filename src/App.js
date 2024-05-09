@@ -92,7 +92,7 @@ function App() {
       // Установить новый таймер для отправки запроса через 3 секунды
       setDebouncedAddBalance(setTimeout(() => {
         sendBalanceUpdateRequest();
-      }, 3000));
+      }, 2000));
     }
   };
   
