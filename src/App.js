@@ -29,7 +29,12 @@ function App() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id);
+        const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id, {
+          method: 'GET', // измените метод на GET
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch user data');
         }
@@ -39,11 +44,12 @@ function App() {
         console.error('Error fetching user data:', error);
       }
     };
-
+  
     if (userData) {
       fetchUserData();
     }
   }, [userData]);
+  
 
   useEffect(() => {
     const energyInterval = setInterval(() => {
