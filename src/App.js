@@ -20,7 +20,7 @@ import Light from './icons/light.svg';
 import ProgressBar from './components/ProgressBar/ProgressBar';
 
 function App() {
-  const [loading, setLoading] = useState(true); // Добавлено состояние для отслеживания состояния загрузки
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
   const [ubalance, setBalance] = useState(0);
@@ -54,7 +54,7 @@ function App() {
         setUserDb(userDb);
         setBalance(parseInt(userDb.balance));
         setClick(parseInt(userDb.click_count));
-        setLoading(false); // После успешного подключения к серверу устанавливаем состояние загрузки как false
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching user data:', error);
         setLoading(true);
@@ -148,7 +148,7 @@ function App() {
 
   return (
     <div className="App">
-      {loading ? ( // Условный рендеринг: если состояние загрузки true, отображаем окно загрузки
+      {loading ? (
         <div className="loading-screen">
           <div class="loading">
             <span></span>
@@ -157,45 +157,54 @@ function App() {
           </div>
           <p>Подключение к серверу...</p>
         </div>
-        
       ) : (
-        activeWindow === 'App' && (
-          <div className="app-window">
-            {userDb && (
-              <div id="usercard" className="user-card">
-                <div className="user-panel">
-                  <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
-                  <div className='userInfo_container transparent'>
-                    <p className='transparent user_name'>{userDb.fullname}</p>
-                    <p className='transparent user_id'>ID: {userDb.user_id}</p>
+        <div>
+          {userDb && userDb.banned ? (
+            <div className="blocked-screen">
+              <p>Данный пользователь заблокирован.</p>
+            </div>
+          ) : (
+            <>
+              {activeWindow === 'App' && (
+                <div className="app-window">
+                  {userDb && (
+                    <div id="usercard" className="user-card">
+                      <div className="user-panel">
+                        <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
+                        <div className='userInfo_container transparent'>
+                          <p className='transparent user_name'>{userDb.fullname}</p>
+                          <p className='transparent user_id'>ID: {userDb.user_id}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+  
+                  <div className='balance-container'>
+                    <div className='user_balance_container'>
+                      <p className="balance">
+                        <span className='balance_counter'>{ubalance}</span>
+                        <img src={MainCoin} alt='coin' />
+                      </p>
+                      <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance} onKeyDown={handleKeyDown}>
+                        <img src={MainButton} alt='Main Button' className='transparent' />
+                      </button>
+                    </div>
+                  </div>
+  
+  
+                  <div className='Strange_line_container'>
+                    <p className='light_counter'>
+                      <img src={Light} alt='light' className='light_icon' />
+                      {energy}(+2)<span className='grey_text'>/1,000</span>
+                    </p>
+  
+                    <ProgressBar value={energy} max={1000} />
                   </div>
                 </div>
-              </div>
-            )}
-
-            <div className='balance-container'>
-              <div className='user_balance_container'>
-                <p className="balance">
-                  <span className='balance_counter'>{ubalance}</span>
-                  <img src={MainCoin} alt='coin' />
-                </p>
-                <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance} onKeyDown={handleKeyDown}>
-                  <img src={MainButton} alt='Main Button' className='transparent' />
-                </button>
-              </div>
-            </div>
-
-
-            <div className='Strange_line_container'>
-              <p className='light_counter'>
-                <img src={Light} alt='light' className='light_icon' />
-                {energy}(+2)<span className='grey_text'>/1,000</span>
-              </p>
-
-              <ProgressBar value={energy} max={1000} />
-            </div>
-          </div>
-        )
+              )}
+            </>
+          )}
+        </div>
       )}
       <div className="navigation">
         <button className={`nav-button ${activeWindow === 'Rating' && 'active'}`} onClick={() => handleWindowChange('Rating')}>
@@ -219,13 +228,14 @@ function App() {
           <p className='menu__text'>Friends</p>
         </button>
       </div>
-
+  
       {activeWindow === 'Rating' && <Rating />}
       {activeWindow === 'Mine' && <Mine />}
       {activeWindow === 'Earn' && <Earn />}
       {activeWindow === 'Friends' && <Friends />}
     </div>
   );
+  
 }
 
 export default App;
