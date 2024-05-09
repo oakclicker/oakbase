@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import RatingIcon from './icons/rating.png';
 import MineIcon from './icons/mine.png';
@@ -25,7 +25,6 @@ function App() {
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
-  const [balance, setBalance] = useState(0);
   const [debouncedAddBalance, setDebouncedAddBalance] = useState(null);
 
   useEffect(() => {
@@ -72,14 +71,6 @@ function App() {
     return () => clearInterval(energyInterval);
   }, []);
 
-// Inside the component
-
-  useEffect(() => {
-    const debouncedFunction = debounce(handleAddBalance, 3000);
-    setDebouncedAddBalance(debouncedFunction);
-    return () => clearTimeout(debouncedFunction);
-  }, [handleAddBalance]); // Add handleAddBalance to the dependency array
-
   const debounce = (func, delay) => {
     let timeoutId;
     return function (...args) {
@@ -110,18 +101,26 @@ function App() {
         if (!response.ok) {
           throw new Error('Failed to update balance');
         }
-        setBalance(prevBalance => prevBalance + 1);
+        setUserDb(prevUserDb => ({
+          ...prevUserDb,
+          balance: prevUserDb.balance + 1
+        }));
       } catch (error) {
         console.error('Error updating balance:', error);
       }
     }
   };
 
-  const handleAddBalanceDebounced = () => {
+  useEffect(() => {
+    const debouncedFunction = debounce(handleAddBalance, 3000);
+    setDebouncedAddBalance(debouncedFunction);
+    return () => clearTimeout(debouncedFunction);
+  }, [handleAddBalance]);
+
+  const handleAddBalanceDebounced = useCallback(() => {
     debouncedAddBalance();
-  };
-  
-  
+  }, [debouncedAddBalance]);
+
   const handleWindowChange = (windowName) => {
     setActiveWindow(prevWindow => (prevWindow !== windowName ? windowName : prevWindow));
   };
@@ -148,43 +147,39 @@ function App() {
       {activeWindow === 'App' && (
         <div className="app-window">
           {userDb && (
-                        <div id="usercard" className="user-card">
-                        <div className="user-panel">
-                          <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
-                          <div className='userInfo_container transparent'>
-                            <p className='transparent user_name'>{userDb.fullname}</p>
-                            <p className='transparent user_id'>ID: {userDb.user_id}</p>
-                          </div>
-                        </div> 
-                      </div>
+            <div id="usercard" className="user-card">
+              <div className="user-panel">
+                <img src={userDb.photo_url} alt="Avatar" className="avatar transparent" />
+                <div className='userInfo_container transparent'>
+                  <p className='transparent user_name'>{userDb.fullname}</p>
+                  <p className='transparent user_id'>ID: {userDb.user_id}</p>
+                </div>
+              </div> 
+            </div>
           )}
 
-                <div className='balance-container'>
-                  <div className='user_balance_container'>
-                    {userDb && (
-                      <p className="balance">
-                        <span className='balance_counter'>{userDb.balance}</span>
-                        <img src={MainCoin} alt='coin' />
-                      </p>
-                    )}
-                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalanceDebounced}>
-                      <img src={MainButton} alt='Main Button' className='transparent' />
-                    </button>
-                  </div>
-                </div>
+          <div className='balance-container'>
+            <div className='user_balance_container'>
+              {userDb && (
+                <p className="balance">
+                  <p className='balance_counter'>{userDb.balance}</p>
+                  <img src={MainCoin} alt='coin' />
+                </p>
+              )}
+              <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalanceDebounced}>
+                <img src={MainButton} alt='Main Button' className='transparent' />
+              </button>
+            </div>
+          </div>
 
-
-              <div className='Strange_line_container'>
-                  <p className='light_counter'>
-                    <img src={Light} alt='light' className='light_icon' />
-                    {energy}(+2)<span className='grey_text'>/1,000</span>
-                  </p>
-
-                  <ProgressBar value={energy} max={1000} />
-              </div>
+          <div className='Strange_line_container'>
+            <p className='light_counter'>
+              <img src={Light} alt='light' className='light_icon' />
+              {energy}(+2)<span className='grey_text'>/1,000</span>
+            </p>
+            <ProgressBar value={energy} max={1000} />
+          </div>
         </div>
-
-        
       )}
       <div className="navigation">
         <button className={`nav-button ${activeWindow === 'Rating' && 'active'}`} onClick={() => handleWindowChange('Rating')}>
