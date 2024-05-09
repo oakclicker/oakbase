@@ -150,8 +150,14 @@ function App() {
     <div className="App">
       {loading ? ( // Условный рендеринг: если состояние загрузки true, отображаем окно загрузки
         <div className="loading-screen">
+          <div class="loading">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
           <p>Подключение к серверу...</p>
         </div>
+        
       ) : (
         activeWindow === 'App' && (
           <div className="app-window">
