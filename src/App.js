@@ -139,6 +139,12 @@ function App() {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Предотвращаем действие по умолчанию (нажатие на Enter)
+    }
+  };
+
   return (
     <div className="App">
       {activeWindow === 'App' && (
@@ -161,7 +167,7 @@ function App() {
                       <span className='balance_counter'>{ubalance}</span>
                       <img src={MainCoin} alt='coin' />
                   </p>
-                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance} onKeyDown={handleKeyDown}>
                       <img src={MainButton} alt='Main Button' className='transparent' />
                     </button>
                   </div>
