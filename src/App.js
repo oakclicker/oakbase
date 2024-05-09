@@ -29,6 +29,7 @@ function App() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        console.log('Sending request to fetch user data');
         const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id, {
           method: 'GET', // измените метод на GET
           headers: {
@@ -36,6 +37,7 @@ function App() {
           }
         });
         if (!response.ok) {
+          console.log(response);
           throw new Error('Failed to fetch user data');
         }
         const userData = await response.json();
