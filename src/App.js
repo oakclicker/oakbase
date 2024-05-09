@@ -22,12 +22,11 @@ import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт 
 function App() {
   const [userData, setUserData] = useState(null);
   const [userDb, setUserDb] = useState(null);
-  const [balance, setBalance] = useState(0);
+  // const [balance, setBalance] = useState(0); // Удалил переменную balance, так как она не используется
   const [energy, setEnergy] = useState(1000);
   const [activeWindow, setActiveWindow] = useState('App');
   const [buttonPressed, setButtonPressed] = useState(false);
   
-
   useEffect(() => {
     const telegramApp = window.Telegram.WebApp;
     const userData = telegramApp.initDataUnsafe.user;
@@ -39,7 +38,7 @@ function App() {
       try {
         console.log('Sending request to fetch user data');
         const response = await fetch('https://oakgame.tech/loadUser?user_id=' + userData.id, {
-          method: 'GET', // измените метод на GET
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }
@@ -55,10 +54,10 @@ function App() {
       }
     };
   
-    if (userDb) {
+    if (userData && userDb) { // Изменил условие, чтобы fetchUserData() вызывалась, когда есть и userData, и userDb
       fetchUserData();
     }
-  }, [userDb]);
+  }, [userData, userDb]); // Добавил userData и userDb в зависимости
 
   useEffect(() => {
     const energyInterval = setInterval(() => {
@@ -66,7 +65,7 @@ function App() {
         if (prevEnergy < 999) {
           return prevEnergy + 2;
         } else {
-          return 1000; // Ограничение до 1000
+          return 1000;
         }
       });
     }, 1000);
