@@ -54,11 +54,11 @@ function App() {
       }
     };
   
-    if (userData && userDb) { // Изменил условие, чтобы fetchUserData() вызывалась, когда есть и userData, и userDb
+    if (userData) { // Проверяем, что userData загружены
       fetchUserData();
     }
-  }, [userData, userDb]); // Добавил userData и userDb в зависимости
-
+  }, [userData]); // Используем только userData в зависимости
+  
   useEffect(() => {
     const energyInterval = setInterval(() => {
       setEnergy(prevEnergy => {
@@ -122,18 +122,20 @@ function App() {
                       </div>
           )}
 
-              <div className='balance-container'>
-                <div className='user_balance_container'>
-                  <p className="balance">
-                    <p className='balance_counter'>{userDb.balance}</p>
-                    <img src={MainCoin} alt='coin' />
-                  </p>
-                  <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
-                    <img src={MainButton} alt='Main Button' className='transparent' />
-                      
-                  </button>
+                <div className='balance-container'>
+                  <div className='user_balance_container'>
+                    {userDb && ( // Проверяем, что userDb загружены
+                      <p className="balance">
+                        <p className='balance_counter'>{userDb.balance}</p>
+                        <img src={MainCoin} alt='coin' />
+                      </p>
+                    )}
+                    <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
+                      <img src={MainButton} alt='Main Button' className='transparent' />
+                    </button>
+                  </div>
                 </div>
-              </div>
+
 
               <div className='Strange_line_container'>
                   <p className='light_counter'>
