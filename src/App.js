@@ -17,7 +17,7 @@ import Friends from './components/Friends/Friends';
 import MainButton from './icons/main_button.png';
 import MainCoin from './icons/main_coin.png';
 import Light from './icons/light.svg';
-import ProgressBar from './components/ProgressBar/ProgressBar'; // Импорт ProgressBar
+import ProgressBar from './components/ProgressBar/ProgressBar';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -59,10 +59,10 @@ function App() {
       }
     };
   
-    if (userData) { // Проверяем, что userData загружены
+    if (userData) {
       fetchUserData();
     }
-  }, [userData]); // Используем только userData в зависимости
+  }, [userData]);
   
   useEffect(() => {
     const energyInterval = setInterval(() => {
@@ -87,11 +87,9 @@ function App() {
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
       setBalance(prevBalance => prevBalance + click);
-      
-      // Сбросить предыдущий таймер
+
       clearTimeout(debouncedAddBalance);
-      
-      // Установить новый таймер для отправки запроса через 3 секунды
+
       setDebouncedAddBalance(setTimeout(() => {
         sendBalanceUpdateRequest();
       }, 2000));
@@ -142,7 +140,7 @@ function App() {
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Предотвращаем действие по умолчанию (нажатие на Enter)
+      event.preventDefault();
     }
   };
 
