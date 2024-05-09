@@ -84,6 +84,7 @@ function App() {
   
     if (energy > 0) {
       setEnergy(prevEnergy => prevEnergy - 1);
+      setBalance(prevBalance => prevBalance + 1);
       
       // Сбросить предыдущий таймер
       clearTimeout(debouncedAddBalance);
@@ -104,7 +105,7 @@ function App() {
         },
         body: JSON.stringify({
           user_id: userData.id,
-          balance: 1 // добавляем +1 к балансу
+          balance: ubalance
         })
       });
       if (!response.ok) {
