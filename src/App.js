@@ -27,6 +27,20 @@ function App() {
   const [buttonPressed, setButtonPressed] = useState(false);
 
   useEffect(() => {
+    const energyInterval = setInterval(() => {
+      setEnergy(prevEnergy => {
+        if (prevEnergy < 999) {
+          return prevEnergy + 2;
+        } else {
+          return 1000; // Ограничение до 1000
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(energyInterval);
+  }, []);
+
+  useEffect(() => {
     const fetchUserData = async () => {
       try {
         console.log('Sending request to fetch user data');
@@ -51,21 +65,6 @@ function App() {
       fetchUserData();
     }
   }, [userData]);
-  
-
-  useEffect(() => {
-    const energyInterval = setInterval(() => {
-      setEnergy(prevEnergy => {
-        if (prevEnergy < 999) {
-          return prevEnergy + 2;
-        } else {
-          return 1000; // Ограничение до 1000
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(energyInterval);
-  }, []);
 
   const handleAddBalance = () => {
     setButtonPressed(true);
