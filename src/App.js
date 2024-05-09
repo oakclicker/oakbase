@@ -143,10 +143,10 @@ function App() {
                 <div className='balance-container'>
                   <div className='user_balance_container'>
                     {userDb && ( // Проверяем, что userDb загружены
-                      <p className="balance">
-                        <p className='balance_counter'>{userDb.balance}</p>
-                        <img src={MainCoin} alt='coin' />
-                      </p>
+                    <p className="balance">
+                          <span className='balance_counter'>{balance}</span>
+                          <img src={MainCoin} alt='coin' />
+                        </p>
                     )}
                     <button className={`add-balance-button ${buttonPressed && 'pressed'}`} onClick={handleAddBalance}>
                       <img src={MainButton} alt='Main Button' className='transparent' />
