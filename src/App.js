@@ -57,7 +57,7 @@ function App() {
         setLoading(false); // После успешного подключения к серверу устанавливаем состояние загрузки как false
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setLoading(false); // В случае ошибки также устанавливаем состояние загрузки как false
+        setLoading(true);
       }
     };
 
