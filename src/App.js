@@ -113,7 +113,6 @@ function App() {
       if (!response.ok) {
         throw new Error('Failed to update balance');
       }
-      setBalance(prevBalance => prevBalance + click); // обновляем баланс в UI
     } catch (error) {
       console.error('Error updating balance:', error);
     }
