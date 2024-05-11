@@ -58,7 +58,7 @@ function App() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setLoading(false);
+        setLoading(true);  // false - это для разработчик
       }
     };
 

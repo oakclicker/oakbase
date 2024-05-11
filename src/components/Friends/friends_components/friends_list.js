@@ -12,14 +12,14 @@ const FriendsList = ({ friend_name, friend_image, friend_money }) => {
           <div className='friend_info transparent'>
             <span className='check transparent'>{friend_money}</span>
             <div className='coin_container'>
-              <img className='coin transparent' src={coin_icon} alt="Coin" />
+            <img className='coin transparent' src={coin_icon} alt="Coin" style={{ width: '40px', height: '40px' }} />
             </div>
           </div>
         </div>
         <div className='bonus_display transparent'>
           <span className='friend_bonus transparent'>+2k</span>
           <div className='coin_container'>
-            <img className='coin transparent' src={coin_icon} alt="Coin" />
+            <img className='coin transparent' src={coin_icon} alt="Coin" style={{ width: '40px', height: '40px' }}  />
           </div>
           
         </div>
